@@ -9,6 +9,7 @@ import { capturePhoto } from '@/lib/capture';
 import { composeStrip, loadOptionalImage } from '@/lib/compositor';
 import { createGestureEngine, type GestureEngine } from '@/lib/gesture';
 import { drawSkeleton } from '@/lib/skeleton';
+import { cameraErrorMessage } from '@/lib/cameraError';
 
 const RING_RADIUS = 70;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -33,7 +34,7 @@ export default function BoothPage() {
   const [holdProgress, setHoldProgress] = useState(0);
   const [stripPreview, setStripPreview] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  const [cameraError, setCameraError] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const [modelError, setModelError] = useState(false);
 
   const dispatch = useCallback(
@@ -62,7 +63,7 @@ export default function BoothPage() {
       // instead of letting the synchronous getUserMedia TypeError below
       // escape the effect and leave a black screen.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCameraError(true);
+      setCameraError(cameraErrorMessage('NotFoundError'));
       return;
     }
     navigator.mediaDevices
@@ -77,7 +78,9 @@ export default function BoothPage() {
           video.play();
         }
       })
-      .catch(() => setCameraError(true));
+      .catch((err: unknown) =>
+        setCameraError(cameraErrorMessage(err instanceof DOMException ? err.name : undefined)),
+      );
     return () => stream?.getTracks().forEach((t) => t.stop());
   }, []);
 
@@ -222,10 +225,7 @@ export default function BoothPage() {
 
       {cameraError && (
         <div className="absolute inset-0 flex items-center justify-center bg-black p-12 text-center">
-          <p className="text-3xl text-white">
-            Camera unavailable. Please allow camera access in the browser and
-            reload the page.
-          </p>
+          <p className="text-3xl text-white">{cameraError}</p>
         </div>
       )}
 
