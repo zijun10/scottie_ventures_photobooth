@@ -56,6 +56,14 @@ export default function BoothPage() {
   // Camera init
   useEffect(() => {
     let stream: MediaStream | null = null;
+    if (!navigator.mediaDevices?.getUserMedia) {
+      // Intentional: surfaces the camera-unavailable screen immediately
+      // instead of letting the synchronous getUserMedia TypeError below
+      // escape the effect and leave a black screen.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCameraError(true);
+      return;
+    }
     navigator.mediaDevices
       .getUserMedia({
         video: { width: { ideal: 1920 }, height: { ideal: 1080 }, facingMode: 'user' },
