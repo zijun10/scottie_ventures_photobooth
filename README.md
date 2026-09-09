@@ -25,13 +25,19 @@ vercel login
 vercel link
 ```
 
-Then, in the Vercel dashboard, create a Blob store and connect it to this
-project so `BLOB_READ_WRITE_TOKEN` is injected automatically. Pull it down
-for local use:
+Then create a **public** Blob store linked to this project (the app serves
+strip URLs straight from the store). This one command creates it, connects
+it so `BLOB_READ_WRITE_TOKEN` is injected into every environment, and pulls
+the token into `.env.local` for local use:
 
 ```bash
-vercel env pull .env.local
+vercel blob create-store photobooth-strips --access public --yes
 ```
+
+(If you set the store up in the dashboard instead, run
+`vercel env pull .env.local` afterwards.) Note: `vercel.json` pins the
+framework preset to Next.js so the project settings can't default to
+"Other".
 
 Deploy to production when ready:
 
