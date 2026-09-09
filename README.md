@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Scotty Ventures Photo Booth
 
-## Getting Started
+A kiosk-mode photo booth for Scotty Ventures events. Guests trigger it with a
+victory (✌️) hand gesture detected via MediaPipe, the booth counts down and
+captures three photos, composites them into a branded strip, uploads the
+strip to Vercel Blob, and shows a QR code so guests can scan it on their
+phone and save the strip.
 
-First, run the development server:
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev       # http://localhost:3000
+npm test          # Vitest unit tests
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run lint` and `npx tsc --noEmit` should stay clean; `npm run build`
+produces the production bundle.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## First-time Vercel setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm i -g vercel
+vercel login
+vercel link
+```
 
-## Learn More
+Then, in the Vercel dashboard, create a Blob store and connect it to this
+project so `BLOB_READ_WRITE_TOKEN` is injected automatically. Pull it down
+for local use:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+vercel env pull .env.local
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Deploy to production when ready:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+vercel deploy --prod
+```
 
-## Deploy on Vercel
+## Event-day checklist
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Drop `public/logo.png` in for the strip branding. Optionally add
+  `public/frame.png` — a 1200x3000 image with transparent windows over the
+  photo slots — to use a full custom frame instead of the default panel.
+- Set the real event date in `lib/config.ts` (`EVENT.date`) and, if needed,
+  the brand red (`COLORS.red`). The tagline and all booth timings (hold
+  duration, countdown length, QR/cooldown timeouts) also live in
+  `lib/config.ts`.
+- Open the production URL in Chrome on the booth machine, allow camera
+  access when prompted, and press F11 for fullscreen.
+- The captured photo is a centered 4:3 crop of the camera preview, so coach
+  guests to stand centered in frame rather than at the edges.
+- Keep the booth machine's internet connection up throughout the event —
+  the upload and QR step both require it.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## After the event
+
+The `/api/strips` upload route is public and uploaded blobs never expire, so
+once the event is over either:
+
+- delete or pause the Vercel deployment, or
+- add a Vercel WAF rate-limit rule on `/api/strips` to stop further uploads.
+
+You can also delete individual strip blobs from the Vercel dashboard if you
+want to clear storage.
