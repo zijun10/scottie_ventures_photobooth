@@ -18,7 +18,7 @@ export const COLORS = {
 export const TIMINGS = {
   holdMs: 1000,
   countdownSeconds: 3,
-  qrTimeoutMs: 60_000,
+  qrTimeoutMs: 30_000,
   cooldownMs: 3000,
   uploadTimeoutMs: 20_000,
 } as const;
