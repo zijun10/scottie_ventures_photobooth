@@ -253,10 +253,13 @@ export default function BoothPage() {
 
       {state.name === 'attract' && !cameraError && (
         <>
-          <div className="absolute inset-x-0 top-10 text-center">
-            <h1 className="font-serif text-5xl font-bold tracking-tight text-white drop-shadow-lg">
-              Scottie Ventures
-            </h1>
+          <div className="absolute inset-x-0 top-10 flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="Scottie Ventures"
+              className="h-28 w-auto drop-shadow-lg"
+            />
           </div>
           <div className="absolute inset-x-0 bottom-12 px-8 text-center">
             <p className="font-serif text-2xl text-white drop-shadow-lg">
