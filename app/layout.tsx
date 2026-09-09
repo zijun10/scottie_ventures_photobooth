@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Scotty Ventures Photo Booth",
+  title: "Scottie Ventures Photo Booth",
   description: "V stands for venture capital.",
 };
 

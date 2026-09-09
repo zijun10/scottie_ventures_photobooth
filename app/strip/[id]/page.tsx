@@ -22,11 +22,11 @@ export default async function StripPage({
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-6 bg-black p-6">
-      <h1 className="text-2xl font-bold text-white">Scotty Ventures</h1>
+      <h1 className="text-2xl font-bold text-white">Scottie Ventures</h1>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={blob.url}
-        alt="Your Scotty Ventures photo strip"
+        alt="Your Scottie Ventures photo strip"
         className="w-full max-w-sm rounded shadow-lg"
       />
       <a

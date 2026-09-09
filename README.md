@@ -1,6 +1,6 @@
-# Scotty Ventures Photo Booth
+# Scottie Ventures Photo Booth
 
-A kiosk-mode photo booth for Scotty Ventures events. Guests trigger it with a
+A kiosk-mode photo booth for Scottie Ventures events. Guests trigger it with a
 victory (✌️) hand gesture detected via MediaPipe, the booth counts down and
 captures three photos, composites them into a branded strip, uploads the
 strip to Vercel Blob, and shows a QR code so guests can scan it on their

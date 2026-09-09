@@ -234,7 +234,7 @@ export default function BoothPage() {
         <>
           <div className="absolute inset-x-0 top-10 text-center">
             <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-lg">
-              Scotty Ventures
+              Scottie Ventures
             </h1>
           </div>
           <div className="absolute inset-x-0 bottom-12 px-8 text-center">
