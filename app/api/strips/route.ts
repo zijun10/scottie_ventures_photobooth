@@ -1,7 +1,7 @@
 import { put } from '@vercel/blob';
 import { customAlphabet } from 'nanoid';
 
-const MAX_BYTES = 10 * 1024 * 1024;
+const MAX_BYTES = 4 * 1024 * 1024;
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const newId = customAlphabet(alphabet, 12);
 

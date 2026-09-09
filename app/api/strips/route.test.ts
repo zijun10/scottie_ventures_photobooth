@@ -29,9 +29,10 @@ describe('POST /api/strips', () => {
     expect(put).not.toHaveBeenCalled();
   });
 
-  it('rejects bodies over 10MB with 400', async () => {
-    const body = new Blob([new Uint8Array(10 * 1024 * 1024 + 1)]);
+  it('rejects bodies over 4MB with 400', async () => {
+    const body = new Blob([new Uint8Array(4 * 1024 * 1024 + 1)]);
     const res = await POST(new Request('http://localhost/api/strips', { method: 'POST', body }));
     expect(res.status).toBe(400);
+    expect(put).not.toHaveBeenCalled();
   });
 });

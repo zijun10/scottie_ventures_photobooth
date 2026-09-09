@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { coverCrop } from './capture';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { capturePhoto, coverCrop } from './capture';
 
 describe('coverCrop', () => {
   it('crops the sides of a 16:9 source to fit 4:3', () => {
@@ -29,5 +29,49 @@ describe('coverCrop', () => {
       sw: 1600,
       sh: 1200,
     });
+  });
+});
+
+describe('capturePhoto', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('mirrors the cropped video frame onto a 1120x840 canvas', () => {
+    const calls: [string, ...unknown[]][] = [];
+    const fakeCtx = {
+      translate: (x: number, y: number) => calls.push(['translate', x, y]),
+      scale: (x: number, y: number) => calls.push(['scale', x, y]),
+      drawImage: (
+        img: unknown,
+        sx: number,
+        sy: number,
+        sw: number,
+        sh: number,
+        dx: number,
+        dy: number,
+        dw: number,
+        dh: number,
+      ) => calls.push(['drawImage', sx, sy, sw, sh, dx, dy, dw, dh]),
+    };
+    const fakeCanvas = {
+      width: 0,
+      height: 0,
+      getContext: () => fakeCtx,
+    };
+    vi.stubGlobal('document', {
+      createElement: () => fakeCanvas,
+    });
+
+    const fakeVideo = { videoWidth: 1920, videoHeight: 1080 } as HTMLVideoElement;
+    const canvas = capturePhoto(fakeVideo);
+
+    expect(canvas.width).toBe(1120);
+    expect(canvas.height).toBe(840);
+    expect(calls).toEqual([
+      ['translate', 1120, 0],
+      ['scale', -1, 1],
+      ['drawImage', 240, 0, 1440, 1080, 0, 0, 1120, 840],
+    ]);
   });
 });
