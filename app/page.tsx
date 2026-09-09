@@ -34,6 +34,9 @@ export default function BoothPage() {
   const [holdProgress, setHoldProgress] = useState(0);
   const [stripPreview, setStripPreview] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [qrSecondsLeft, setQrSecondsLeft] = useState<number>(
+    Math.ceil(TIMINGS.qrTimeoutMs / 1000),
+  );
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [modelError, setModelError] = useState(false);
 
@@ -203,11 +206,21 @@ export default function BoothPage() {
     };
   }, [state, dispatch]);
 
-  // QR screen auto-reset
+  // QR screen auto-reset, with a visible seconds-remaining countdown
   useEffect(() => {
     if (state.name !== 'qr') return;
-    const t = setTimeout(reset, TIMINGS.qrTimeoutMs);
-    return () => clearTimeout(t);
+    const deadline = Date.now() + TIMINGS.qrTimeoutMs;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setQrSecondsLeft(Math.ceil(TIMINGS.qrTimeoutMs / 1000));
+    const tick = setInterval(() => {
+      const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setQrSecondsLeft(left);
+      if (left === 0) {
+        clearInterval(tick);
+        reset();
+      }
+    }, 250);
+    return () => clearInterval(tick);
   }, [state, reset]);
 
   return (
@@ -313,6 +326,9 @@ export default function BoothPage() {
             >
               Done
             </button>
+            <p className="text-xl text-neutral-400" aria-live="polite">
+              Back to start in {qrSecondsLeft}s
+            </p>
           </div>
         </div>
       )}
