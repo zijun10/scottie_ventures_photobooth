@@ -6,10 +6,12 @@ export const STRIP = {
   photoHeight: 840,
   panelHeight: 360,
   photoCount: 3,
+  keyline: 4, // white hairline around each photo
+  ruleWidth: 240, // short rule between logo and date in the panel
 } as const;
 
 export const COLORS = {
-  red: '#C8102E',
+  red: '#bd2030',
   white: '#FFFFFF',
 } as const;
 
@@ -22,8 +24,8 @@ export const TIMINGS = {
 } as const;
 
 export const EVENT = {
-  name: 'Scotty Ventures',
-  date: 'Fall 2026', // update to the real event date before the event
+  name: 'Scottie Ventures',
+  date: '09/10 · Fall 2026',
 } as const;
 
 export const TAGLINE =

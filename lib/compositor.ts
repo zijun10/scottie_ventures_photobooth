@@ -1,5 +1,5 @@
 import { COLORS, EVENT, STRIP } from './config';
-import { panelRect, photoRects } from './layout';
+import { panelRect, photoRects, type Rect } from './layout';
 
 /** The subset of CanvasRenderingContext2D the compositor uses (stub-testable). */
 export interface StripCtx {
@@ -25,7 +25,8 @@ export function drawStrip(
   ctx.fillStyle = COLORS.red;
   ctx.fillRect(0, 0, STRIP.width, STRIP.height);
 
-  photoRects().forEach((r, i) => {
+  const rects = photoRects();
+  rects.forEach((r, i) => {
     if (photos[i]) ctx.drawImage(photos[i], r.x, r.y, r.width, r.height);
   });
 
@@ -35,29 +36,41 @@ export function drawStrip(
     return;
   }
 
+  ctx.fillStyle = COLORS.white;
+  rects.forEach((r) => drawKeyline(ctx, r, STRIP.keyline));
+
   const panel = panelRect();
   const centerX = panel.x + panel.width / 2;
-  ctx.fillStyle = COLORS.white;
+  const pad = 40;
+  const dateSpace = 70;
   ctx.textAlign = 'center';
 
   if (assets.logo) {
-    const pad = 40;
-    const dateSpace = 70;
     const maxW = panel.width - 2 * pad;
     const maxH = panel.height - 2 * pad - dateSpace;
     const scale = Math.min(maxW / assets.logo.width, maxH / assets.logo.height);
     const w = assets.logo.width * scale;
     const h = assets.logo.height * scale;
     ctx.drawImage(assets.logo, centerX - w / 2, panel.y + pad, w, h);
+    // short rule between the logo and the date
+    ctx.fillRect(centerX - STRIP.ruleWidth / 2, panel.y + pad + h + 22, STRIP.ruleWidth, 2);
   } else {
-    ctx.font = 'bold 90px Arial';
+    ctx.font = 'bold 90px Georgia, serif';
     ctx.textBaseline = 'middle';
-    ctx.fillText('SCOTTY VENTURES', centerX, panel.y + panel.height / 2 - 30);
+    ctx.fillText(`${EVENT.name.toUpperCase()}`, centerX, panel.y + panel.height / 2 - 30);
   }
 
-  ctx.font = '40px Arial';
+  ctx.font = '40px Georgia, serif';
   ctx.textBaseline = 'bottom';
   ctx.fillText(EVENT.date, centerX, panel.y + panel.height - 30);
+}
+
+/** Thin border drawn just outside a rect (four fills; no strokeRect in StripCtx). */
+function drawKeyline(ctx: StripCtx, r: Rect, k: number): void {
+  ctx.fillRect(r.x - k, r.y - k, r.width + 2 * k, k); // top
+  ctx.fillRect(r.x - k, r.y + r.height, r.width + 2 * k, k); // bottom
+  ctx.fillRect(r.x - k, r.y, k, r.height); // left
+  ctx.fillRect(r.x + r.width, r.y, k, r.height); // right
 }
 
 /** Browser-only: compose the final strip JPEG. */
