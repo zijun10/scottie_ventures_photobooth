@@ -18,7 +18,7 @@ class StubCtx implements StripCtx {
     this.calls.push(['drawImage', x, y, w, h]);
   }
   fillText(text: string, x: number, y: number): void {
-    this.calls.push(['fillText', text, x, y]);
+    this.calls.push(['fillText', text, x, y, this.font]);
   }
 }
 
@@ -82,6 +82,21 @@ describe('drawStrip', () => {
     expect(rule![3] as number).toBeLessThan(panel.y + panel.height);
     const texts = ctx.calls.filter((c) => c[0] === 'fillText').map((c) => c[1]);
     expect(texts).toEqual([EVENT.date]);
+  });
+
+  it('renders panel text in the provided font family, with a serif default', () => {
+    const custom = new StubCtx();
+    drawStrip(custom, fakePhotos, { fontFamily: '"Libre Baskerville", serif' });
+    const customFonts = custom.calls.filter((c) => c[0] === 'fillText').map((c) => c[4]);
+    expect(customFonts).toEqual([
+      'bold 90px "Libre Baskerville", serif',
+      '40px "Libre Baskerville", serif',
+    ]);
+
+    const fallback = new StubCtx();
+    drawStrip(fallback, fakePhotos, {});
+    const fallbackFonts = fallback.calls.filter((c) => c[0] === 'fillText').map((c) => c[4]);
+    expect(fallbackFonts.every((f) => String(f).endsWith('Georgia, serif'))).toBe(true);
   });
 
   it('draws a full-size frame overlay INSTEAD of the coded panel when provided', () => {

@@ -159,13 +159,21 @@ export default function BoothPage() {
     (async () => {
       try {
         if (!stripBlobRef.current) {
+          // The brand serif is self-hosted by next/font under a generated
+          // family name exposed via --font-baskerville; the canvas needs it
+          // loaded before drawing or it silently falls back.
+          const fontFamily = getComputedStyle(document.documentElement)
+            .getPropertyValue('--font-baskerville')
+            .trim();
           const [logo, frameOverlay] = await Promise.all([
             loadOptionalImage('/logo.png'),
             loadOptionalImage('/frame.png'),
+            fontFamily ? document.fonts.load(`40px ${fontFamily}`).catch(() => undefined) : undefined,
           ]);
           stripBlobRef.current = await composeStrip(photosRef.current, {
             logo,
             frameOverlay,
+            fontFamily: fontFamily ? `${fontFamily}, Georgia, serif` : undefined,
           });
           setStripPreview(URL.createObjectURL(stripBlobRef.current));
         }
@@ -222,7 +230,7 @@ export default function BoothPage() {
       )}
 
       {modelError && !cameraError && (
-        <div className="absolute inset-x-0 top-0 bg-[#C8102E] p-4 text-center">
+        <div style={{ backgroundColor: COLORS.red }} className="absolute inset-x-0 top-0 p-4 text-center">
           <p className="text-xl font-semibold text-white">
             Hand tracking failed to load. Check the internet connection, then
             reload the page.
@@ -233,12 +241,12 @@ export default function BoothPage() {
       {state.name === 'attract' && !cameraError && (
         <>
           <div className="absolute inset-x-0 top-10 text-center">
-            <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-lg">
+            <h1 className="font-serif text-5xl font-bold tracking-tight text-white drop-shadow-lg">
               Scottie Ventures
             </h1>
           </div>
           <div className="absolute inset-x-0 bottom-12 px-8 text-center">
-            <p className="text-3xl font-semibold text-white drop-shadow-lg">
+            <p className="font-serif text-2xl text-white drop-shadow-lg">
               {TAGLINE}
             </p>
           </div>
@@ -300,7 +308,8 @@ export default function BoothPage() {
             )}
             <button
               onClick={reset}
-              className="rounded-full bg-[#C8102E] px-10 py-4 text-2xl font-bold text-white"
+              style={{ backgroundColor: COLORS.red }}
+              className="rounded-full px-10 py-4 text-2xl font-bold text-white"
             >
               Done
             </button>
@@ -320,7 +329,8 @@ export default function BoothPage() {
             </p>
             <button
               onClick={() => dispatch({ type: 'RETRY' })}
-              className="rounded-full bg-[#C8102E] px-10 py-4 text-2xl font-bold text-white"
+              style={{ backgroundColor: COLORS.red }}
+              className="rounded-full px-10 py-4 text-2xl font-bold text-white"
             >
               Try again
             </button>

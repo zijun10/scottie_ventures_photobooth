@@ -1,5 +1,6 @@
 import { list } from '@vercel/blob';
 import { notFound } from 'next/navigation';
+import { COLORS } from '@/lib/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,7 @@ export default async function StripPage({
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-6 bg-black p-6">
-      <h1 className="text-2xl font-bold text-white">Scottie Ventures</h1>
+      <h1 className="font-serif text-2xl font-bold text-white">Scottie Ventures</h1>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={blob.url}
@@ -31,7 +32,8 @@ export default async function StripPage({
       />
       <a
         href={blob.downloadUrl}
-        className="rounded-full bg-[#C8102E] px-10 py-4 text-xl font-bold text-white"
+        style={{ backgroundColor: COLORS.red }}
+        className="rounded-full px-10 py-4 text-xl font-bold text-white"
       >
         Save photo
       </a>

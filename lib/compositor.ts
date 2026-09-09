@@ -15,7 +15,11 @@ export interface StripCtx {
 export interface StripAssets {
   logo?: HTMLImageElement;
   frameOverlay?: HTMLImageElement;
+  /** CSS font-family for panel text (the page passes its loaded brand serif). */
+  fontFamily?: string;
 }
+
+const DEFAULT_FONT_FAMILY = 'Georgia, serif';
 
 export function drawStrip(
   ctx: StripCtx,
@@ -43,6 +47,7 @@ export function drawStrip(
   const centerX = panel.x + panel.width / 2;
   const pad = 40;
   const dateSpace = 70;
+  const family = assets.fontFamily ?? DEFAULT_FONT_FAMILY;
   ctx.textAlign = 'center';
 
   if (assets.logo) {
@@ -55,12 +60,12 @@ export function drawStrip(
     // short rule between the logo and the date
     ctx.fillRect(centerX - STRIP.ruleWidth / 2, panel.y + pad + h + 22, STRIP.ruleWidth, 2);
   } else {
-    ctx.font = 'bold 90px Georgia, serif';
+    ctx.font = `bold 90px ${family}`;
     ctx.textBaseline = 'middle';
-    ctx.fillText(`${EVENT.name.toUpperCase()}`, centerX, panel.y + panel.height / 2 - 30);
+    ctx.fillText(EVENT.name.toUpperCase(), centerX, panel.y + panel.height / 2 - 30);
   }
 
-  ctx.font = '40px Georgia, serif';
+  ctx.font = `40px ${family}`;
   ctx.textBaseline = 'bottom';
   ctx.fillText(EVENT.date, centerX, panel.y + panel.height - 30);
 }
