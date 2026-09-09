@@ -17,11 +17,24 @@ export interface GestureEngine {
 
 export async function createGestureEngine(): Promise<GestureEngine> {
   const vision = await FilesetResolver.forVisionTasks(WASM_URL);
-  const recognizer = await GestureRecognizer.createFromOptions(vision, {
-    baseOptions: { modelAssetPath: MODEL_URL, delegate: 'GPU' },
-    runningMode: 'VIDEO',
+  const options = {
+    runningMode: 'VIDEO' as const,
     numHands: 2,
-  });
+  };
+  let recognizer;
+  try {
+    recognizer = await GestureRecognizer.createFromOptions(vision, {
+      baseOptions: { modelAssetPath: MODEL_URL, delegate: 'GPU' },
+      ...options,
+    });
+  } catch {
+    // Some devices/browsers lack a usable GPU delegate; retry on CPU
+    // before giving up and letting the caller show the model-error banner.
+    recognizer = await GestureRecognizer.createFromOptions(vision, {
+      baseOptions: { modelAssetPath: MODEL_URL, delegate: 'CPU' },
+      ...options,
+    });
+  }
   return {
     detect(video, timestampMs) {
       const result = recognizer.recognizeForVideo(video, timestampMs);

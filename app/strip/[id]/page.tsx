@@ -11,7 +11,12 @@ export default async function StripPage({
   const { id } = await params;
   if (!/^[A-Za-z0-9]{12}$/.test(id)) notFound();
 
-  const { blobs } = await list({ prefix: `strips/${id}.jpg`, limit: 1 });
+  let blobs;
+  try {
+    ({ blobs } = await list({ prefix: `strips/${id}.jpg`, limit: 1 }));
+  } catch {
+    notFound();
+  }
   if (blobs.length === 0) notFound();
   const blob = blobs[0];
 

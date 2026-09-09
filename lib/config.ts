@@ -18,6 +18,7 @@ export const TIMINGS = {
   countdownSeconds: 5,
   qrTimeoutMs: 60_000,
   cooldownMs: 3000,
+  uploadTimeoutMs: 20_000,
 } as const;
 
 export const EVENT = {

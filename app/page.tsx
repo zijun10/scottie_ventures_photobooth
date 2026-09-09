@@ -49,6 +49,7 @@ export default function BoothPage() {
       return null;
     });
     setQrDataUrl(null);
+    setHoldProgress(0);
     holdRef.current.startCooldown(performance.now());
     dispatch({ type: 'RESET' });
   }, [dispatch]);
@@ -172,6 +173,7 @@ export default function BoothPage() {
           method: 'POST',
           headers: { 'Content-Type': 'image/jpeg' },
           body: stripBlobRef.current,
+          signal: AbortSignal.timeout(TIMINGS.uploadTimeoutMs),
         });
         if (!res.ok) throw new Error(`upload failed: ${res.status}`);
         const { id } = (await res.json()) as { id: string };
@@ -222,7 +224,7 @@ export default function BoothPage() {
       {modelError && !cameraError && (
         <div className="absolute inset-x-0 top-0 bg-[#C8102E] p-4 text-center">
           <p className="text-xl font-semibold text-white">
-            Hand tracking failed to load — check the internet connection and
+            Hand tracking failed to load. Check the internet connection, then
             reload the page.
           </p>
         </div>
