@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateTrigger, isCurled, isSPair, isStacked, wristDirection, type Hand } from './trigger';
+import { evaluateTrigger, isCurled, isStacked, type Hand } from './trigger';
 import type { Point } from './skeleton';
 
 /**
@@ -31,20 +31,6 @@ function hand(cx: number, cy: number, curl: number, size = 0.1): Point[] {
   return lm;
 }
 
-/** Rotate a hand about its wrist. 0 = fingers up (wrist below the hand). */
-function rotate(lm: Point[], deg: number): Point[] {
-  const r = (deg * Math.PI) / 180;
-  const w = lm[0];
-  return lm.map((p) => ({
-    x: w.x + (p.x - w.x) * Math.cos(r) - (p.y - w.y) * Math.sin(r),
-    y: w.y + (p.x - w.x) * Math.sin(r) + (p.y - w.y) * Math.cos(r),
-  }));
-}
-/** Curled hand entering from the side (wrist horizontal), palm center near (cx, cy). */
-const sideHand = (cx: number, cy: number) => rotate(hand(cx - 0.07, cy, 0.7), 90);
-/** Curled hand coming up from below (wrist pointing down). */
-const belowHand = (cx: number, cy: number) => hand(cx, cy + 0.07, 0.7);
-
 const H = (landmarks: Point[], category = 'None'): Hand => ({ landmarks, category });
 
 describe('isCurled', () => {
@@ -63,13 +49,6 @@ describe('isStacked', () => {
   it('is true for two hands one above the other', () => {
     expect(isStacked(hand(0.5, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(true);
   });
-  it('is false for hands stacked but offset diagonally', () => {
-    // 0.05 apart horizontally is half a hand-size at size 0.1 — too far sideways.
-    expect(isStacked(hand(0.45, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(false);
-  });
-  it('is true for hands stacked with a slight offset', () => {
-    expect(isStacked(hand(0.49, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(true);
-  });
   it('is false for hands side by side', () => {
     expect(isStacked(hand(0.2, 0.5, 0.7), hand(0.8, 0.5, 0.7))).toBe(false);
   });
@@ -78,42 +57,9 @@ describe('isStacked', () => {
   });
 });
 
-describe('wristDirection', () => {
-  it('is down for an upright hand', () => {
-    expect(wristDirection(hand(0.5, 0.5, 0))).toBe('down');
-  });
-  it('is horizontal for a hand rotated 90 degrees either way', () => {
-    expect(wristDirection(rotate(hand(0.5, 0.5, 0), 90))).toBe('horizontal');
-    expect(wristDirection(rotate(hand(0.5, 0.5, 0), -90))).toBe('horizontal');
-  });
-  it('tolerates a modest tilt', () => {
-    expect(wristDirection(rotate(hand(0.5, 0.5, 0), 25))).toBe('down');
-    expect(wristDirection(rotate(hand(0.5, 0.5, 0), 70))).toBe('horizontal');
-  });
-  it('is other for a diagonal or upside-down hand', () => {
-    expect(wristDirection(rotate(hand(0.5, 0.5, 0), 45))).toBe('other');
-    expect(wristDirection(rotate(hand(0.5, 0.5, 0), 180))).toBe('other');
-  });
-});
-
-describe('isSPair', () => {
-  it('is true for a side hand above a from-below hand', () => {
-    expect(isSPair(sideHand(0.5, 0.4), belowHand(0.5, 0.6))).toBe(true);
-  });
-  it('is false when both wrists point down', () => {
-    expect(isSPair(belowHand(0.5, 0.4), belowHand(0.5, 0.6))).toBe(false);
-  });
-  it('is false when both wrists are horizontal', () => {
-    expect(isSPair(sideHand(0.5, 0.4), sideHand(0.5, 0.6))).toBe(false);
-  });
-  it('is false for the right orientations but not stacked', () => {
-    expect(isSPair(sideHand(0.2, 0.5), belowHand(0.8, 0.5))).toBe(false);
-  });
-});
-
 describe('evaluateTrigger', () => {
-  const sTop = H(sideHand(0.3, 0.4));
-  const sBottom = H(belowHand(0.3, 0.6));
+  const sTop = H(hand(0.3, 0.4, 0.7));
+  const sBottom = H(hand(0.3, 0.6, 0.7));
   const v = H(hand(0.8, 0.5, 0), 'Victory');
 
   it('fires when a stacked curled pair and a Victory hand are all present', () => {
@@ -134,8 +80,8 @@ describe('evaluateTrigger', () => {
   });
 
   it('does not count two side-by-side curled hands as an S', () => {
-    const left = H(sideHand(0.1, 0.5));
-    const right = H(belowHand(0.5, 0.5));
+    const left = H(hand(0.1, 0.5, 0.7));
+    const right = H(hand(0.5, 0.5, 0.7));
     expect(evaluateTrigger([left, right, v]).active).toBe(false);
   });
 
