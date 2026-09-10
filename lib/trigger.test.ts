@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateTrigger, isCurled, isSPair, toSquare, type Hand } from './trigger';
+import { evaluateTrigger, isCurled, isStacked, type Hand } from './trigger';
 import type { Point } from './skeleton';
 
 /**
@@ -31,9 +31,6 @@ function hand(cx: number, cy: number, curl: number, size = 0.1): Point[] {
   return lm;
 }
 
-/** Curled hand, fingers up, palm center near (cx, cy). */
-const curledHand = (cx: number, cy: number) => hand(cx, cy + 0.08, 0.7);
-
 const H = (landmarks: Point[], category = 'None'): Hand => ({ landmarks, category });
 
 describe('isCurled', () => {
@@ -48,57 +45,21 @@ describe('isCurled', () => {
   });
 });
 
-describe('isSPair (rotation 0)', () => {
-  it('accepts a directly stacked, touching pair', () => {
-    expect(isSPair(curledHand(0.5, 0.44), curledHand(0.5, 0.56), 0)).toBe(true);
+describe('isStacked', () => {
+  it('is true for two hands one above the other', () => {
+    expect(isStacked(hand(0.5, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(true);
   });
-  it('accepts a slightly offset stacked pair', () => {
-    expect(isSPair(curledHand(0.48, 0.44), curledHand(0.5, 0.58), 0)).toBe(true);
+  it('is false for hands side by side', () => {
+    expect(isStacked(hand(0.2, 0.5, 0.7), hand(0.8, 0.5, 0.7))).toBe(false);
   });
-  it('rejects a diagonal (45°) pair', () => {
-    expect(isSPair(curledHand(0.4, 0.44), curledHand(0.5, 0.54), 0)).toBe(false);
-  });
-  it('rejects hands side by side', () => {
-    expect(isSPair(curledHand(0.3, 0.5), curledHand(0.6, 0.52), 0)).toBe(false);
-  });
-  it('rejects stacked hands that are far apart', () => {
-    expect(isSPair(curledHand(0.5, 0.15), curledHand(0.5, 0.85), 0)).toBe(false);
-  });
-});
-
-describe('isSPair rotation', () => {
-  const top = curledHand(0.5, 0.44);
-  const bottom = curledHand(0.5, 0.56);
-  const pivot = { x: 0.5, y: 0.5 };
-  const rot = (lm: Point[], deg: number) => {
-    const r = (deg * Math.PI) / 180;
-    return lm.map((p) => ({
-      x: pivot.x + (p.x - pivot.x) * Math.cos(r) - (p.y - pivot.y) * Math.sin(r),
-      y: pivot.y + (p.x - pivot.x) * Math.sin(r) + (p.y - pivot.y) * Math.cos(r),
-    }));
-  };
-  it('a pose rotated by the template angle still matches', () => {
-    expect(isSPair(rot(top, 10), rot(bottom, 10), 10)).toBe(true);
-    expect(isSPair(rot(top, 40), rot(bottom, 40), 40)).toBe(true);
-  });
-  it('a pose rotated well past the tolerance does not match', () => {
-    expect(isSPair(rot(top, 45), rot(bottom, 45), 0)).toBe(false);
-  });
-  it('a straight-vertical pose still matches with the 10° template', () => {
-    expect(isSPair(top, bottom, 10)).toBe(true);
-  });
-});
-
-describe('toSquare', () => {
-  it('scales x by the aspect ratio and leaves y alone', () => {
-    expect(toSquare([{ x: 0.5, y: 0.5 }], 16 / 9)).toEqual([{ x: (0.5 * 16) / 9, y: 0.5 }]);
+  it('is false for hands far apart vertically', () => {
+    expect(isStacked(hand(0.5, 0.1, 0.7), hand(0.5, 0.9, 0.7))).toBe(false);
   });
 });
 
 describe('evaluateTrigger', () => {
-  // Vertically stacked; S_ROTATION_DEG is small enough that it still fits.
-  const sTop = H(curledHand(0.3, 0.44));
-  const sBottom = H(curledHand(0.3, 0.56));
+  const sTop = H(hand(0.3, 0.4, 0.7));
+  const sBottom = H(hand(0.3, 0.6, 0.7));
   const v = H(hand(0.8, 0.5, 0), 'Victory');
 
   it('fires when a stacked curled pair and a Victory hand are all present', () => {
@@ -119,8 +80,8 @@ describe('evaluateTrigger', () => {
   });
 
   it('does not count two side-by-side curled hands as an S', () => {
-    const left = H(curledHand(0.1, 0.5));
-    const right = H(curledHand(0.5, 0.5));
+    const left = H(hand(0.1, 0.5, 0.7));
+    const right = H(hand(0.5, 0.5, 0.7));
     expect(evaluateTrigger([left, right, v]).active).toBe(false);
   });
 
