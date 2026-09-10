@@ -9,6 +9,7 @@ import { capturePhoto } from '@/lib/capture';
 import { composeStrip, loadOptionalImage } from '@/lib/compositor';
 import { createGestureEngine, type GestureEngine } from '@/lib/gesture';
 import { drawSkeleton } from '@/lib/skeleton';
+import { describeHands } from '@/lib/trigger';
 import { cameraErrorMessage } from '@/lib/cameraError';
 
 const RING_RADIUS = 70;
@@ -91,6 +92,10 @@ export default function BoothPage() {
   useEffect(() => {
     let raf = 0;
     let stopped = false;
+    let lastDebugLog = 0;
+    const DEBUG =
+      process.env.NODE_ENV === 'development' &&
+      new URLSearchParams(window.location.search).has('debug');
     (async () => {
       try {
         if (!engineRef.current) engineRef.current = await createGestureEngine();
@@ -114,6 +119,10 @@ export default function BoothPage() {
         }
         const now = performance.now();
         const frame = engineRef.current!.detect(video, now);
+        if (DEBUG && now - lastDebugLog > 500) {
+          lastDebugLog = now;
+          console.log('[SV]', JSON.stringify(describeHands(frame.hands)));
+        }
         const { progress, fired } = holdRef.current.update(frame.trigger.active, now);
         setHoldProgress(progress);
         drawSkeleton(

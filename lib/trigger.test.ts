@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateTrigger, isCurled, isStacked, type Hand } from './trigger';
+import { evaluateTrigger, isCurled, isSPair, isStacked, type Hand } from './trigger';
 import type { Point } from './skeleton';
 
 /**
@@ -57,9 +57,19 @@ describe('isStacked', () => {
   });
 });
 
+describe('isSPair', () => {
+  it('is true for stacked hands that touch', () => {
+    expect(isSPair(hand(0.5, 0.4, 0.7), hand(0.5, 0.55, 0))).toBe(true);
+  });
+  it('is false for stacked hands with a gap between them', () => {
+    expect(isSPair(hand(0.5, 0.3, 0.7), hand(0.5, 0.58, 0.7))).toBe(false);
+  });
+});
+
 describe('evaluateTrigger', () => {
+  // Top hand curled, bottom hand reads straight (curls toward the camera).
   const sTop = H(hand(0.3, 0.4, 0.7));
-  const sBottom = H(hand(0.3, 0.6, 0.7));
+  const sBottom = H(hand(0.3, 0.55, 0), 'Open_Palm');
   const v = H(hand(0.8, 0.5, 0), 'Victory');
 
   it('fires when a stacked curled pair and a Victory hand are all present', () => {
@@ -85,8 +95,8 @@ describe('evaluateTrigger', () => {
     expect(evaluateTrigger([left, right, v]).active).toBe(false);
   });
 
-  it('ignores an open, unrecognized extra hand', () => {
-    const open = H(hand(0.6, 0.2, 0));
+  it('ignores an extra hand that is not touching the pair', () => {
+    const open = H(hand(0.8, 0.2, 0));
     expect(evaluateTrigger([sTop, open, sBottom, v])).toEqual({
       active: true,
       hasS: true,
