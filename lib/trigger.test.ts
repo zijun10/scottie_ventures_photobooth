@@ -50,11 +50,11 @@ describe('isStacked', () => {
     expect(isStacked(hand(0.5, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(true);
   });
   it('is false for hands stacked but offset diagonally', () => {
-    // 0.1 apart horizontally is 1 hand-size at size 0.1 — too far sideways.
-    expect(isStacked(hand(0.4, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(false);
+    // 0.05 apart horizontally is half a hand-size at size 0.1 — too far sideways.
+    expect(isStacked(hand(0.45, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(false);
   });
   it('is true for hands stacked with a slight offset', () => {
-    expect(isStacked(hand(0.48, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(true);
+    expect(isStacked(hand(0.49, 0.4, 0.7), hand(0.5, 0.6, 0.7))).toBe(true);
   });
   it('is false for hands side by side', () => {
     expect(isStacked(hand(0.2, 0.5, 0.7), hand(0.8, 0.5, 0.7))).toBe(false);
