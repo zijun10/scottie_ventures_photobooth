@@ -45,7 +45,8 @@ export async function createGestureEngine(): Promise<GestureEngine> {
         const category = top && top.score >= MIN_SCORE ? top.categoryName : 'None';
         return { landmarks, category };
       });
-      return { hands, trigger: evaluateTrigger(hands) };
+      const aspect = video.videoHeight ? video.videoWidth / video.videoHeight : 1;
+      return { hands, trigger: evaluateTrigger(hands, aspect) };
     },
   };
 }
