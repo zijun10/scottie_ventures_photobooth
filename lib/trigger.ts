@@ -37,7 +37,7 @@ const FINGERS: ReadonlyArray<readonly [number, number, number, number]> = [
 /** Tip-to-knuckle distance below this fraction of finger length = bent. */
 const CURL_RATIO = 0.85;
 /** Stacking tolerances, in multiples of the hand size (wrist → middle MCP). */
-const MAX_DX = 1.5;
+const MAX_DX = 0.6;
 const MIN_DY = 0.5;
 const MAX_DY = 3;
 
