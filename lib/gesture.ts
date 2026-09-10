@@ -1,4 +1,5 @@
 import { FilesetResolver, GestureRecognizer } from '@mediapipe/tasks-vision';
+import { evaluateTrigger, type Hand, type TriggerResult } from './trigger';
 
 const WASM_URL =
   'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
@@ -7,8 +8,8 @@ const MODEL_URL =
 const MIN_SCORE = 0.6;
 
 export interface GestureFrame {
-  landmarks: { x: number; y: number }[][];
-  isVictory: boolean;
+  hands: Hand[];
+  trigger: TriggerResult;
 }
 
 export interface GestureEngine {
@@ -19,7 +20,8 @@ export async function createGestureEngine(): Promise<GestureEngine> {
   const vision = await FilesetResolver.forVisionTasks(WASM_URL);
   const options = {
     runningMode: 'VIDEO' as const,
-    numHands: 2,
+    // S (two hands) + V (one hand) needs at least three; allow a spare.
+    numHands: 4,
   };
   let recognizer;
   try {
@@ -38,10 +40,12 @@ export async function createGestureEngine(): Promise<GestureEngine> {
   return {
     detect(video, timestampMs) {
       const result = recognizer.recognizeForVideo(video, timestampMs);
-      const isVictory = result.gestures.some(
-        (g) => g[0]?.categoryName === 'Victory' && g[0].score >= MIN_SCORE,
-      );
-      return { landmarks: result.landmarks, isVictory };
+      const hands: Hand[] = result.landmarks.map((landmarks, i) => {
+        const top = result.gestures[i]?.[0];
+        const category = top && top.score >= MIN_SCORE ? top.categoryName : 'None';
+        return { landmarks, category };
+      });
+      return { hands, trigger: evaluateTrigger(hands) };
     },
   };
 }

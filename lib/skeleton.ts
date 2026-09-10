@@ -20,15 +20,16 @@ export interface Point {
 export function drawSkeleton(
   ctx: CanvasRenderingContext2D,
   hands: Point[][],
-  color: string,
+  color: string | string[],
   width: number,
   height: number,
 ): void {
   ctx.clearRect(0, 0, width, height);
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
   ctx.lineWidth = 4;
-  for (const hand of hands) {
+  hands.forEach((hand, i) => {
+    const c = Array.isArray(color) ? color[i] : color;
+    ctx.strokeStyle = c;
+    ctx.fillStyle = c;
     for (const [a, b] of HAND_CONNECTIONS) {
       ctx.beginPath();
       ctx.moveTo((1 - hand[a].x) * width, hand[a].y * height);
@@ -40,5 +41,5 @@ export function drawSkeleton(
       ctx.arc((1 - p.x) * width, p.y * height, 6, 0, Math.PI * 2);
       ctx.fill();
     }
-  }
+  });
 }

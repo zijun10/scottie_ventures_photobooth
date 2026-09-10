@@ -29,4 +29,4 @@ export const EVENT = {
 } as const;
 
 export const TAGLINE =
-  'V stands for venture capital. Activate the photo booth by doing a ✌️';
+  'S V stands for Scottie Ventures. Grab a friend: one of you curls both hands into an S, the other does a ✌️';

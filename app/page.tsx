@@ -114,12 +114,12 @@ export default function BoothPage() {
         }
         const now = performance.now();
         const frame = engineRef.current!.detect(video, now);
-        const { progress, fired } = holdRef.current.update(frame.isVictory, now);
+        const { progress, fired } = holdRef.current.update(frame.trigger.active, now);
         setHoldProgress(progress);
         drawSkeleton(
           overlay.getContext('2d')!,
-          frame.landmarks,
-          frame.isVictory ? COLORS.red : COLORS.white,
+          frame.hands.map((h) => h.landmarks),
+          frame.trigger.matched.map((m) => (m ? COLORS.red : COLORS.white)),
           overlay.width,
           overlay.height,
         );

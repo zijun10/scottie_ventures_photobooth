@@ -1,7 +1,10 @@
 # Scottie Ventures Photo Booth
 
-A kiosk-mode photo booth for Scottie Ventures events. Guests trigger it with a
-victory (✌️) hand gesture detected via MediaPipe, the booth counts down and
+A kiosk-mode photo booth for Scottie Ventures events. Two guests trigger it
+together: one curls both hands into C shapes stacked to form an **S**, the other
+holds up a ✌️ (**V**). Hands are tracked via MediaPipe; the S is detected from
+landmarks, the V from the built-in Victory class. Once both are held for a
+second, the booth counts down and
 captures three photos, composites them into a branded strip, uploads the
 strip to Vercel Blob, and shows a QR code so guests can scan it on their
 phone and save the strip.
