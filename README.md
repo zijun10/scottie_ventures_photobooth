@@ -6,6 +6,12 @@ captures three photos, composites them into a branded strip, uploads the
 strip to Vercel Blob, and shows a QR code so guests can scan it on their
 phone and save the strip.
 
+https://scottie-ventures-photobooth-sv.vercel.app/
+- S V hand pose trigger
+
+https://scottie-ventures-photobooth.vercel.app/
+- V hand pose trigger
+
 ## Local development
 
 ```bash
